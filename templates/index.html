@@ -1,0 +1,114 @@
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Solver simbólico con SymPy</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}" />
+    <script>
+      window.MathJax = {
+        tex: { inlineMath: [['$', '$'], ['\\(', '\\)']] },
+        svg: { fontCache: 'global' },
+      };
+    </script>
+    <script defer src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-svg.js"></script>
+  </head>
+  <body>
+    <main class="layout">
+      <header>
+        <h1>Resolver ecuaciones</h1>
+        <p>
+          Escribe una ecuación por línea. Si no incluyes "=" se interpreta como
+          <code>expresión = 0</code>.
+        </p>
+      </header>
+
+      <form id="solver-form" class="panel">
+        <label for="equations">Ecuaciones</label>
+        <textarea id="equations" name="equations" rows="5" required>
+3*x + 2*y = 8
+x^2 + 5*x + 6 = 0</textarea
+        >
+
+        <label for="variables">Incógnitas (opcional, separadas por coma)</label>
+        <input id="variables" name="variables" type="text" placeholder="x, y" />
+
+        <button type="submit">Resolver</button>
+      </form>
+
+      <section id="result" class="panel result">
+        <h2>Resultado</h2>
+        <div id="result-content">Envía una ecuación para ver la solución.</div>
+      </section>
+      <div id="copyright">
+        <p>&copy; 2026, <a href="https://isantosruiz.github.io/home/" style="text-decoration: none;">Ildeberto de los Santos Ruiz</a></p>
+      </div>
+    </main>
+
+    <script>
+      const form = document.getElementById('solver-form');
+      const resultContent = document.getElementById('result-content');
+
+      function typesetMath() {
+        if (window.MathJax && window.MathJax.typesetPromise) {
+          window.MathJax.typesetPromise([resultContent]);
+        }
+      }
+
+      function renderError(message) {
+        resultContent.innerHTML = `<p class="error">${message}</p>`;
+      }
+
+      function renderSuccess(data) {
+        const equationsHtml = data.equations_latex
+          .map((eq) => `<li>\\(${eq}\\)</li>`)
+          .join('');
+
+        let solutionsHtml = '<p class="warning">No se encontraron soluciones explícitas.</p>';
+        if (data.solutions_latex.length > 0) {
+          solutionsHtml = data.solutions_latex
+            .map((sol, index) => `<li><strong>Solución ${index + 1}</strong> \\[${sol}\\]</li>`)
+            .join('');
+          solutionsHtml = `<ul>${solutionsHtml}</ul>`;
+        }
+
+        resultContent.innerHTML = `
+          <p><strong>Incógnitas:</strong> \\(${data.variables_latex.join(', ')}\\)</p>
+          <p><strong>Ecuaciones interpretadas:</strong></p>
+          <ul>${equationsHtml}</ul>
+          <p><strong>Soluciones:</strong></p>
+          ${solutionsHtml}
+        `;
+        typesetMath();
+      }
+
+      form.addEventListener('submit', async (event) => {
+        event.preventDefault();
+        resultContent.textContent = 'Resolviendo...';
+
+        const payload = {
+          equations: document.getElementById('equations').value,
+          variables: document.getElementById('variables').value,
+        };
+
+        try {
+          const response = await fetch('/solve', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(payload),
+          });
+
+          const data = await response.json();
+          if (!response.ok || !data.ok) {
+            renderError(data.error || 'No fue posible resolver las ecuaciones.');
+            return;
+          }
+
+          renderSuccess(data);
+        } catch (error) {
+          renderError('Error de conexión con el servidor.');
+        }
+      });
+    </script>
+  </body>
+</html>
