@@ -43,8 +43,15 @@ SAFE_GLOBALS = {
     "Float": Float,
     "factorial": factorial,
 }
+
+
+def log10(value):
+    return log(value, 10)
+
+
 SAFE_LOCALS = {
     "sin": sin,
+    "sen": sin,
     "cos": cos,
     "tan": tan,
     "asin": asin,
@@ -55,9 +62,12 @@ SAFE_LOCALS = {
     "tanh": tanh,
     "exp": exp,
     "log": log,
+    "ln": log,
+    "log10": log10,
     "sqrt": sqrt,
     "Abs": Abs,
     "pi": pi,
+    "e": E,
     "E": E,
     "I": I,
 }

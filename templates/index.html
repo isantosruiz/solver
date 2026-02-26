@@ -18,7 +18,7 @@
       <header>
         <h1>Resolución simbólica de ecuaciones</h1>
         <p>
-          Escribe una ecuación por línea. Si no incluyes "=" se interpreta como
+          Escribe una ecuación por línea. Si no incluyes el símbolo <code>=</code> se interpretará como
           <code>expresión = 0</code>.
         </p>
       </header>
@@ -29,6 +29,13 @@
 3*x + 2*y = 8
 x^2 + 5*x + 6 = 0</textarea
         >
+        <p class="equation-hint">
+          Usa <code>pi</code> para \(\pi\) y <code>e</code> para el número de Euler \(e\).
+          Escribe funciones en minúsculas: <code>exp()</code>, <code>sqrt()</code>,
+          <code>sin()</code> o <code>sen()</code>, <code>log()</code>, etc.
+          Tanto <code>ln()</code> como <code>log()</code> representan el logaritmo natural;
+          <code>log10()</code> representa el logaritmo decimal.
+        </p>
 
         <label for="variables">Incógnitas (opcional, separadas por coma)</label>
         <input id="variables" name="variables" type="text" placeholder="x, y" />
